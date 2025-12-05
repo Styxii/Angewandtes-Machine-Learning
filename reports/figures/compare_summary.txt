@@ -1,0 +1,19 @@
+Models compared: xgb_tuned.pkl, xgb_baseline.pkl, keras_ffn.keras
+
+Model: xgb_tuned.pkl
+ path: c:\Users\hmarx\Documents\GitHub\Angewandtes-Machine-Learning\models\xgb_tuned.pkl
+ R2: 0.3407
+ RMSE: 0.5410
+ MAE: 0.4348
+
+Model: xgb_baseline.pkl
+ path: c:\Users\hmarx\Documents\GitHub\Angewandtes-Machine-Learning\models\xgb_baseline.pkl
+ R2: 0.1784
+ RMSE: 0.6039
+ MAE: 0.4848
+
+Model: keras_ffn.keras
+ path: c:\Users\hmarx\Documents\GitHub\Angewandtes-Machine-Learning\models\keras_ffn.keras
+ R2: 0.1924
+ RMSE: 0.5987
+ MAE: 0.4908
