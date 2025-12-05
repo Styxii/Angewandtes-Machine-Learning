@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 """
-Create essential diagnostic plot for trained model.
-Saves minimal figure to `reports/figures/`.
+Erstellt Plots für die trainierten Modelle.
+Speichert die Bilder in reports/figures/.
 """
 
 import argparse
@@ -16,7 +15,7 @@ from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from glob import glob
 import math
 
-# Try importing Keras
+# keras falls verfügbar
 try:
     from tensorflow import keras
 
@@ -28,18 +27,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.config import DATA_PROCESSED, MODELS_DIR, RANDOM_SEED
 
 parser = argparse.ArgumentParser(description="Plot training results")
-parser.add_argument(
-    "--no-show", action="store_true", help="Don't show plots interactively"
-)
+parser.add_argument("--no-show", action="store_true", help="Plots nicht anzeigen")
 args = parser.parse_args()
 
-# By default, show plots unless --no-show is specified
+# normalerweise plots anzeigen außer --no-show
 SHOW_PLOTS = not args.no_show
 
 OUTPUT_DIR = os.path.join("reports", "figures")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Load processed data
+# daten laden
 processed = DATA_PROCESSED / "techuse_processed.csv"
 if not processed.exists():
     raise FileNotFoundError(f"Processed data not found: {processed}")
@@ -51,7 +48,7 @@ if "sleep_quality" not in df.columns:
 X = df.drop(columns=["sleep_quality"])
 y = df["sleep_quality"]
 
-# Train/test split same as training script
+# gleicher split wie beim training
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=RANDOM_SEED
 )
@@ -66,7 +63,7 @@ keras_file = MODELS_DIR / "keras_ffn.keras"
 
 models = []
 
-# Load XGBoost models
+# xgboost modelle laden
 for fp in model_pkl_files[:2]:
     try:
         m = joblib.load(fp)
@@ -77,7 +74,7 @@ for fp in model_pkl_files[:2]:
     except Exception:
         pass
 
-# Load Keras model if available
+# keras falls vorhanden
 if keras_file.exists() and HAS_KERAS:
     try:
         m = keras.models.load_model(keras_file)
@@ -88,7 +85,7 @@ if keras_file.exists() and HAS_KERAS:
 if not models:
     raise FileNotFoundError(f"Keine Modelle in {MODELS_DIR} gefunden.")
 
-# For Keras models, load scaler
+# scaler für keras
 scaler = None
 scaler_path = MODELS_DIR / "scaler.pkl"
 if HAS_KERAS and scaler_path.exists():
@@ -97,7 +94,7 @@ if HAS_KERAS and scaler_path.exists():
     except Exception:
         scaler = None
 
-# Evaluate each model
+# alle modelle durchgehen
 preds = {}
 metrics = {}
 for path_obj, mdl, model_type in models:
@@ -125,7 +122,7 @@ for path_obj, mdl, model_type in models:
         "type": model_type,
     }
 
-# Save summary
+# zusammenfassung speichern
 summary_lines = []
 summary_lines.append(f"Models: {', '.join([m[0].name for m in models])}\n")
 for name, m in metrics.items():
@@ -138,12 +135,10 @@ summary_file = os.path.join(OUTPUT_DIR, "model_metrics.txt")
 with open(summary_file, "w", encoding="utf-8") as fh:
     fh.write("\n".join(summary_lines))
 
-# Generate single essential plot: Model Comparison
+# plot mit allen modellen
 names = list(preds.keys())
 
 plt.figure(figsize=(10, 7))
-
-# Plot all models
 colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728"]
 for idx, name in enumerate(names):
     y_pred = preds[name]
@@ -156,7 +151,7 @@ for idx, name in enumerate(names):
         color=colors[idx % len(colors)],
     )
 
-# Reference line (perfect prediction)
+# ideallinie
 plt.plot(
     [y_test.min(), y_test.max()],
     [y_test.min(), y_test.max()],
@@ -180,16 +175,12 @@ plt.close()
 print(f"Saved: {fn}")
 print(f"Saved: {summary_file}")
 
-# Keras training history plot
+# keras trainings-verlauf
 history_path = DATA_PROCESSED / "keras_training_history.csv"
 if history_path.exists():
     try:
         df_history = pd.read_csv(history_path)
-
-        # Create figure with two subplots
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
-
-        # Plot 1: Loss (Training + Validation)
         ax1.plot(
             df_history.index + 1, df_history["loss"], label="Training Loss", linewidth=2
         )
@@ -204,8 +195,6 @@ if history_path.exists():
         ax1.set_title("Keras FFN: Loss Verlauf", fontsize=12, fontweight="bold")
         ax1.legend(fontsize=10)
         ax1.grid(True, alpha=0.3)
-
-        # Plot 2: MAE (Training + Validation)
         ax2.plot(
             df_history.index + 1, df_history["mae"], label="Training MAE", linewidth=2
         )
@@ -222,8 +211,6 @@ if history_path.exists():
         ax2.grid(True, alpha=0.3)
 
         plt.tight_layout()
-
-        # Save
         keras_history_fn = os.path.join(OUTPUT_DIR, "keras_training_history.png")
         plt.savefig(keras_history_fn, dpi=150)
         if SHOW_PLOTS:

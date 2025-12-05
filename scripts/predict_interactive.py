@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
 Interaktive Schlafqualitäts-Prognose
 Gibt eigene Werte ein und erhalte eine Vorhersage von trainierten Modellen.
@@ -18,8 +16,6 @@ from src.config import MODELS_DIR
 print("\n" + "=" * 70)
 print("Schlafqualitäts-Prognose (Interaktiv)")
 print("=" * 70)
-
-# Load models
 xgb_model = None
 for name in ["xgb_tuned.pkl", "xgb_baseline.pkl"]:
     p = MODELS_DIR / name
@@ -30,8 +26,6 @@ for name in ["xgb_tuned.pkl", "xgb_baseline.pkl"]:
             break
         except Exception:
             pass
-
-# Load Keras model if available
 keras_model = None
 scaler = None
 keras_path = MODELS_DIR / "keras_ffn.keras"
@@ -54,9 +48,6 @@ if not xgb_model and not keras_model:
 print("\n" + "=" * 70)
 print("Gib deine Werte ein (basierend auf deinen täglichen Daten):")
 print("=" * 70)
-
-# Feature-Eingabe (entspricht den Features aus dem Training)
-# Siehe train_model.py für die genaue Feature-Liste
 
 try:
     age = float(input("Alter: "))
@@ -88,8 +79,7 @@ except ValueError:
     print("\nFehler: Bitte gültige Zahlen eingeben.")
     exit(1)
 
-# Erstelle Feature-Vektor (alle Features wie im Training)
-# Reihenfolge muss exakt mit train_model.py übereinstimmen!
+# features zusammenstellen
 features = {
     "age": age,
     "daily_screen_time_hours": daily_screen_time,
@@ -120,8 +110,6 @@ df_input = pd.DataFrame([features])
 print("\n" + "=" * 70)
 print("PROGNOSE")
 print("=" * 70)
-
-# Use XGBoost for explanation (better interpretability with SHAP)
 pred_xgb = None
 if xgb_model:
     try:
@@ -139,8 +127,6 @@ if keras_model:
         print(f"Keras FFN Vorhersage: {pred_keras:.2f} / 5.0")
     except Exception as e:
         print(f"Keras Fehler: {e}")
-
-# Feature importance explanation
 if xgb_model and pred_xgb is not None:
     print("\n" + "=" * 70)
     print("EINFLUSS-ANALYSE (Top 5 wichtigste Faktoren)")
@@ -149,23 +135,15 @@ if xgb_model and pred_xgb is not None:
     try:
         import shap
 
-        # Create SHAP explainer
         explainer = shap.TreeExplainer(xgb_model)
         shap_values = explainer.shap_values(df_input)
-
-        # Get feature contributions
         feature_names = df_input.columns.tolist()
         contributions = list(zip(feature_names, shap_values[0]))
-
-        # Sort by absolute impact
         contributions_sorted = sorted(
             contributions, key=lambda x: abs(x[1]), reverse=True
         )
-
-        # Show top 5
         for i, (feature, impact) in enumerate(contributions_sorted[:5], 1):
             direction = "erhöht" if impact > 0 else "senkt"
-            # Translate feature names to German
             feature_de = {
                 "stress_level": "Stress-Level",
                 "mental_health_score": "Mental Health Score",
@@ -186,8 +164,6 @@ if xgb_model and pred_xgb is not None:
     except ImportError:
         print("\nHinweis: SHAP nicht installiert. Installiere mit: pip install shap")
         print("Zeige einfache Feature-Wichtigkeit:")
-
-        # Fallback: Use built-in feature importance
         importance = xgb_model.feature_importances_
         feature_names = df_input.columns.tolist()
 

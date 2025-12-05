@@ -11,6 +11,6 @@ Model: xgb_baseline.pkl
   MAE:  0.4855
 
 Model: keras_ffn.keras
-  R²:   0.3388
-  RMSE: 0.5417
-  MAE:  0.4512
+  R²:   0.3366
+  RMSE: 0.5426
+  MAE:  0.4468
