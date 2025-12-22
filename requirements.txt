@@ -9,5 +9,4 @@ matplotlib
 seaborn
 tensorflow>=2.10
 keras
-shap
 

@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """
-Projekt Setup - Erstellt notwendige Verzeichnisse und Konfiguration
+Projekt Setup - ertellt notwendige Verzeichnisse und Konfiguration
 """
 
 from pathlib import Path
@@ -10,9 +8,7 @@ import sys
 
 PROJECT_ROOT = Path(__file__).parent.parent.absolute()
 
-print("\n" + "=" * 70)
 print("Sleep Prediction Project - Setup")
-print("=" * 70)
 
 # Verzeichnisse erstellen
 print("\nErstelle Verzeichnisse...")
@@ -24,7 +20,7 @@ dirs = [
 ]
 for d in dirs:
     d.mkdir(parents=True, exist_ok=True)
-    print(f"  ✓ {d.relative_to(PROJECT_ROOT)}")
+    print(f"   {d.relative_to(PROJECT_ROOT)}")
 
 # config.py erstellen
 print("\nErstelle src/config.py...")
@@ -44,7 +40,7 @@ for d in [DATA_RAW, DATA_PROCESSED, MODELS_DIR]:
 '''
 with open(config_file, "w", encoding="utf-8") as f:
     f.write(config_content)
-print("  ✓ src/config.py")
+print("   src/config.py")
 
 # Python-Pakete installieren
 print("\nInstalliere benötigte Pakete...")
@@ -62,12 +58,10 @@ if requirements_file.exists():
                 "--quiet",
             ]
         )
-        print("  ✓ Alle Pakete installiert/aktualisiert")
+        print("  Alle Pakete installiert/aktualisiert")
     except subprocess.CalledProcessError:
-        print("  ⚠ Fehler bei der Installation - bitte manuell prüfen")
+        print("  WARNUNG: Fehler bei der Installation - bitte manuell prüfen")
 else:
-    print("  ⚠ requirements.txt nicht gefunden")
+    print("  WARNUNG: requirements.txt nicht gefunden")
 
-print("\n" + "=" * 70)
 print("Setup abgeschlossen!")
-print("=" * 70)
