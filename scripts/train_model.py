@@ -467,11 +467,13 @@ joblib.dump(
         "y_train": y_train_class,
         "y_test": y_test_class,
     },
-    Path("...") / "train_test_splits.pkl",
-    joblib.dump(
-        {"y_pred_test_keras": y_pred_nn_clf}, "keras_results.pkl"
-    ),  # Gespeicherte Vorhersagen für Keras für spätere Analysen
+    MODELS_DIR / "train_test_splits.pkl",
 )
+
+joblib.dump(
+    {"y_pred_test_keras": y_pred_nn_clf}, MODELS_DIR / "keras_results.pkl"
+)  # Gespeicherte Vorhersagen für Keras für spätere Analysen
+
 # Zusammenfassung
 print("TRAINING ABGESCHLOSSEN")
 print("." * 50)
